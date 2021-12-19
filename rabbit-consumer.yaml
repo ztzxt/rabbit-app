@@ -1,0 +1,40 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbit-consumer
+  namespace: application
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: rabbit-consumer
+  template:
+    metadata:
+      labels:
+        component: rabbit-consumer
+    spec:
+      containers:
+      - name: rabbit-consumer
+        image: ztzxt/python-rabbitmq:consumer-20211219222618
+        env:
+          - name: RABBITMQ_HOST
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq-connection
+                key: RABBITMQ_HOST
+          - name: RABBITMQ_PASS
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq-connection
+                key: RABBITMQ_PASS
+          - name: RABBITMQ_USER
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq-connection
+                key: RABBITMQ_USER
+          - name: ELASTIC_HOST
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq-connection
+                key: ELASTIC_HOST

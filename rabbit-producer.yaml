@@ -1,0 +1,74 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbit-producer
+  namespace: application
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: rabbit-producer
+  template:
+    metadata:
+      labels:
+        component: rabbit-producer
+    spec:
+      containers:
+      - name: rabbit-producer
+        image: ztzxt/python-rabbitmq:producer-20211219223312
+        ports:
+          - containerPort: 5000
+        env:
+          - name: RABBITMQ_HOST
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq-connection
+                key: RABBITMQ_HOST
+          - name: RABBITMQ_PASS
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq-connection
+                key: RABBITMQ_PASS
+          - name: RABBITMQ_USER
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq-connection
+                key: RABBITMQ_USER
+          - name: RANDOM_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq-connection
+                key: RANDOM_ENDPOINT
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbit-producer
+  namespace: application
+spec:
+  selector:
+    component: rabbit-producer
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rabbit-producer
+  namespace: application
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: rabbit-producer.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: rabbit-producer
+            port:
+              number: 5000
