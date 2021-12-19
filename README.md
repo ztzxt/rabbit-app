@@ -34,7 +34,7 @@ Note: Ingress in Kibana chart is not used since it uses deprecated Ingress API
 
 Install RabbitMQ as 2 node cluster
 
-    helm install rabbitmq bitnami/rabbitmq -n messaging  -f rabbitmq-values.yaml
+    helm install rabbitmq bitnami/rabbitmq -n messaging --create-namespace -f rabbitmq-values.yaml
 
 
 Install Fluent-bit for logging
